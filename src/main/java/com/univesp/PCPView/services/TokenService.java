@@ -1,4 +1,4 @@
-package com.univesp.PCPView.service;
+package com.univesp.PCPView.services;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -41,7 +41,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception){
-            return "Token inválido";
+            throw new RuntimeException("Token inválido");
         }
     }
 

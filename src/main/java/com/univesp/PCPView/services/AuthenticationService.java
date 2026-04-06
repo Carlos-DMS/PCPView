@@ -1,8 +1,8 @@
-package com.univesp.PCPView.service;
+package com.univesp.PCPView.services;
 
-import com.univesp.PCPView.dto.authentication.LoginRequestDTO;
-import com.univesp.PCPView.dto.authentication.LoginResponseDTO;
-import com.univesp.PCPView.dto.authentication.RegisterRequestDTO;
+import com.univesp.PCPView.dto.authentication.request.LoginRequestDTO;
+import com.univesp.PCPView.dto.authentication.response.LoginResponseDTO;
+import com.univesp.PCPView.dto.authentication.request.RegisterRequestDTO;
 import com.univesp.PCPView.exceptions.UserAlreadyExistsException;
 import com.univesp.PCPView.models.UserModel;
 import com.univesp.PCPView.repository.UserRepository;
@@ -23,6 +23,12 @@ public class AuthenticationService {
 
     private final TokenService tokenService;
 
+    public AuthenticationService(AuthenticationManager authenticationManager, UserRepository repository, TokenService tokenService) {
+        this.authenticationManager = authenticationManager;
+        this.repository = repository;
+        this.tokenService = tokenService;
+    }
+
     public LoginResponseDTO login(LoginRequestDTO body) {
         UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(body.email(), body.password());
         Authentication auth = this.authenticationManager.authenticate(usernamePassword);
@@ -31,7 +37,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void register(RegisterRequestDTO body) {
+    public void registrar(RegisterRequestDTO body) {
         if(this.repository.findByEmail(body.email()) == null) {
 
             String encryptedPassword = new BCryptPasswordEncoder().encode(body.password());
@@ -47,11 +53,5 @@ public class AuthenticationService {
     public UserModel extractUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (UserModel) authentication.getPrincipal();
-    }
-
-    public AuthenticationService(AuthenticationManager authenticationManager, UserRepository repository, TokenService tokenService) {
-        this.authenticationManager = authenticationManager;
-        this.repository = repository;
-        this.tokenService = tokenService;
     }
 }

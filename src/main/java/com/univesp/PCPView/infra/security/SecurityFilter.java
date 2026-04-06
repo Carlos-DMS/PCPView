@@ -1,7 +1,7 @@
 package com.univesp.PCPView.infra.security;
 
 import com.univesp.PCPView.repository.UserRepository;
-import com.univesp.PCPView.service.TokenService;
+import com.univesp.PCPView.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.univesp.PCPView.dto.authentication;
+package com.univesp.PCPView.dto.authentication.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

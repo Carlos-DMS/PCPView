@@ -1,4 +1,4 @@
-package com.univesp.PCPView.dto.authentication;
+package com.univesp.PCPView.dto.authentication.request;
 
 import com.univesp.PCPView.models.enums.RoleEnum;
 import jakarta.validation.constraints.Email;

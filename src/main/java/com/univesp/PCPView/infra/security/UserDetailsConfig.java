@@ -10,14 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 @Transactional
 public class UserDetailsConfig implements UserDetailsService {
+
     private final UserRepository repository;
+
+    public UserDetailsConfig(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return repository.findByEmail(username);
-    }
-
-    public UserDetailsConfig(UserRepository repository) {
-        this.repository = repository;
     }
 }
