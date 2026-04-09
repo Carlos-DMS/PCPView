@@ -20,11 +20,9 @@ public class MachineModel {
 
     @Column(nullable = false)
     private String nome;
-
+    private String tipo;
     @Column(unique = true)
     private String codigo;
-
-    private String tipo;
 
     @Enumerated(EnumType.STRING)
     private MachineStatus status;
