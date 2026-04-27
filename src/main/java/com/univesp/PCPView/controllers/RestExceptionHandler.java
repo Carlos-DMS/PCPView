@@ -1,5 +1,6 @@
 package com.univesp.PCPView.controllers;
 
+import com.univesp.PCPView.exceptions.NonExistentMachineException;
 import com.univesp.PCPView.exceptions.NonExistentProductException;
 import com.univesp.PCPView.exceptions.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,11 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(NonExistentProductException.class)
     private ResponseEntity<String> produtoNaoExistenteHandler(NonExistentProductException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(NonExistentMachineException.class)
+    private ResponseEntity<String> maquinaNaoExistenteHandler(NonExistentMachineException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 

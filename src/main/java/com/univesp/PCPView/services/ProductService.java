@@ -21,7 +21,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponseDTO salvarProduto (ProductRequestDTO body) {
+    public ProductResponseDTO registrarProduto(ProductRequestDTO body) {
         ProductModel produto = new ProductModel(body.id(), body.sku(), body.nome());
 
         productRepository.save(produto);

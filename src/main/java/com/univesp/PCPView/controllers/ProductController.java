@@ -33,7 +33,7 @@ public class ProductController {
     @ApiResponse(responseCode = "201",description = "Produto cadastrado com sucesso!")
     @ApiResponse(responseCode = "400", description = "Requisição inválida.")
     public ResponseEntity<ProductResponseDTO> registrarProduto(@RequestBody @Valid ProductRequestDTO body){
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.salvarProduto(body));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.registrarProduto(body));
     }
 
     @GetMapping
