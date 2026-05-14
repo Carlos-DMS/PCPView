@@ -1,7 +1,7 @@
 package com.univesp.PCPView.models.enums;
 
 public enum StatusProducaoEnum {
-    AGUARDANDO,      // OP criada, mas não iniciada
+    AGUARDANDO,      // OP criada, mas não iniciada ou pausada
     EM_PROCESSAMENTO,// Peças estão na máquina/usinagem
     FINALIZADO,      // OP concluída com sucesso
     CANCELADO        // OP cancelada por algum problema

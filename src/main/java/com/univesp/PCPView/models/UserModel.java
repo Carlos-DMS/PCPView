@@ -50,6 +50,10 @@ public class UserModel implements UserDetails, Serializable {
         return List.of(new SimpleGrantedAuthority("ROLE" + this.role.name()));
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     @Override
     public String getPassword() {
         return this.password;
@@ -58,6 +62,10 @@ public class UserModel implements UserDetails, Serializable {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    public RoleEnum getRole() {
+        return role;
     }
 
     @Override
