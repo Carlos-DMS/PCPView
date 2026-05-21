@@ -1,6 +1,5 @@
 package com.univesp.PCPView.services;
 
-import com.univesp.PCPView.dto.execution.request.ExecutionFinishRequestDTO;
 import com.univesp.PCPView.dto.execution.request.ExecutionStartRequestDTO;
 import com.univesp.PCPView.dto.execution.response.ExecutionResponseDTO;
 import com.univesp.PCPView.exceptions.*;
@@ -13,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ExecutionService {
@@ -68,16 +68,10 @@ public class ExecutionService {
     }
 
     @Transactional
-    public ExecutionResponseDTO finalizarExecucao(ExecutionFinishRequestDTO body) {
+    public ExecutionResponseDTO finalizarExecucao(UUID idExecucao, Integer quantidadeProduzida) {
         UserModel usuarioLogado = authenticationService.extractUser();
 
-        ExecutionModel execucao = executionRepository.findById(body.idExecucao()).orElseThrow(NonExistentExecutionException::new);
-
-        SubOrderModel subOrdem = subOrderRepository.findById(execucao.getSubOrdem().getId()).orElseThrow(NonExistentSubOrderException::new);
-
-        OrderModel ordemPrincipal = orderRepository.findById(subOrdem.getOrdemPrincipal().getNumeroOrdem()).orElseThrow(DatabaseException::new);
-
-        MachineModel maquina = machineRepository.findById(execucao.getMaquina().getId()).orElseThrow(NonExistentMachineException::new);
+        ExecutionModel execucao = executionRepository.findById(idExecucao).orElseThrow(NonExistentExecutionException::new);
 
         if (!execucao.getOperador().getId().equals(usuarioLogado.getId()) && !usuarioLogado.getRole().equals(RoleEnum.ADMIN)) {
             throw new UnauthorizedExecutionAccessException();
@@ -87,11 +81,17 @@ public class ExecutionService {
             throw new ExecutionNotRunningException();
         }
 
-        execucao.setQuantidadeFeitaNestaSessao(body.quantidadeProduzida());
+        SubOrderModel subOrdem = subOrderRepository.findById(execucao.getSubOrdem().getId()).orElseThrow(NonExistentSubOrderException::new);
+
+        OrderModel ordemPrincipal = orderRepository.findById(subOrdem.getOrdemPrincipal().getNumeroOrdem()).orElseThrow(DatabaseException::new);
+
+        MachineModel maquina = machineRepository.findById(execucao.getMaquina().getId()).orElseThrow(NonExistentMachineException::new);
+
+        execucao.setQuantidadeFeitaNestaSessao(quantidadeProduzida);
         execucao.inserirDataFim();
         execucao.setStatus(ExecutionStatus.FINALIZADA);
 
-        subOrdem.adicionarQuantidadeProduzida(body.quantidadeProduzida());
+        subOrdem.adicionarQuantidadeProduzida(quantidadeProduzida);
 
         operacaoValidaParaExecucao(ordemPrincipal, subOrdem);
 

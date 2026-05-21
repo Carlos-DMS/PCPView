@@ -1,13 +1,13 @@
 package com.univesp.PCPView.services;
 
 import com.univesp.PCPView.dto.machine.request.MachineRequestDTO;
-import com.univesp.PCPView.dto.machine.request.UpdateMachineNameDTO;
 import com.univesp.PCPView.dto.machine.response.MachineResponseDTO;
 import com.univesp.PCPView.exceptions.NonExistentMachineException;
 import com.univesp.PCPView.models.MachineModel;
 import com.univesp.PCPView.repository.MachineRepository;
-import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,10 +35,12 @@ public class MachineService {
         return converterMaquinaParaResponseDTO(maquina);
     }
 
+    @Transactional(readOnly = true)
     public List<MachineResponseDTO> buscarTodasMaquinas() {
         return machineRepository.findAll().stream().map(this::converterMaquinaParaResponseDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<MachineResponseDTO> buscarMaquinasPorStatusOperacional(Boolean operacional) {
         return machineRepository.findByOperacional(operacional).stream().map(this::converterMaquinaParaResponseDTO).toList();
     }
@@ -55,10 +57,10 @@ public class MachineService {
     }
 
     @Transactional
-    public MachineResponseDTO alterarNome(String id, UpdateMachineNameDTO body) {
+    public MachineResponseDTO alterarNome(String id, String nome) {
         MachineModel maquina = machineRepository.findById(id).orElseThrow(NonExistentMachineException::new);
 
-        maquina.setNome(body.nome());
+        maquina.setNome(nome);
 
         machineRepository.save(maquina);
 

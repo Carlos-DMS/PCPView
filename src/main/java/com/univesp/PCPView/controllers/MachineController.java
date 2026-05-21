@@ -1,7 +1,6 @@
 package com.univesp.PCPView.controllers;
 
 import com.univesp.PCPView.dto.machine.request.MachineRequestDTO;
-import com.univesp.PCPView.dto.machine.request.UpdateMachineNameDTO;
 import com.univesp.PCPView.dto.machine.response.MachineResponseDTO;
 import com.univesp.PCPView.infra.security.WebSecurityConfig;
 import com.univesp.PCPView.services.MachineService;
@@ -10,8 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/machine")
 @Tag(name = "Machine Controller", description = "Operações relacionadas as máquinas.")
+@Validated
 @SecurityRequirement(name = WebSecurityConfig.SECURITY)
 public class MachineController {
 
@@ -64,15 +67,17 @@ public class MachineController {
     }
 
     @PatchMapping("/updateName/{id}")
-    @Operation(summary = "Alterna o nome de uma máquina")
+    @Operation(summary = "Altera o nome de uma máquina (APENAS ADMINISTRADORES)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ApiResponse(responseCode = "200",description = "Máquina atualizada com sucesso!")
     @ApiResponse(responseCode = "404",description = "A máquina não existe.")
-    public ResponseEntity<MachineResponseDTO> alterarNome(@PathVariable(value = "id") String id, @RequestBody @Valid UpdateMachineNameDTO body) {
-        return ResponseEntity.status(HttpStatus.OK).body(machineService.alterarNome(id, body));
+    public ResponseEntity<MachineResponseDTO> alterarNome(@PathVariable(value = "id") String id, @RequestParam @NotBlank(message = "O nome não pode ser vazio") String nome) {
+        return ResponseEntity.status(HttpStatus.OK).body(machineService.alterarNome(id, nome));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deleta uma máquina pelo seu ID")
+    @Operation(summary = "Deleta uma máquina pelo seu ID (APENAS ADMINISTRADORES)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ApiResponse(responseCode = "204",description = "Máquina deletada com sucesso!")
     @ApiResponse(responseCode = "404",description = "A máquina não existe.")
     public ResponseEntity<?> deletarMaquina(@PathVariable(value = "id") String id) {

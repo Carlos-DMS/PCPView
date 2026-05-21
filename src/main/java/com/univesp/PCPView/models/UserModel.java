@@ -35,11 +35,11 @@ public class UserModel implements UserDetails, Serializable {
     @Column(nullable = false)
     private RoleEnum role;
 
-    public UserModel(String userName, String email, String password, RoleEnum role) {
+    public UserModel(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.role = RoleEnum.USER;
     }
 
     public UserModel() {
@@ -47,7 +47,7 @@ public class UserModel implements UserDetails, Serializable {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE" + this.role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
     public UUID getId() {
@@ -62,6 +62,10 @@ public class UserModel implements UserDetails, Serializable {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    public void setRole(RoleEnum role) {
+        this.role = role;
     }
 
     public RoleEnum getRole() {

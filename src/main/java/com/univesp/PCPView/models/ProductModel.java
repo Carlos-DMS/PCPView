@@ -24,7 +24,7 @@ public class ProductModel implements Serializable {
     public ProductModel(String id, String sku, String nome) {
         this.id = id;
         this.sku = sku;
-        this.nome = nome;
+        this.nome = nome.toUpperCase();
     }
 
     public ProductModel() {}

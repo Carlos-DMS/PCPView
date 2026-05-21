@@ -3,6 +3,7 @@ package com.univesp.PCPView.controllers;
 import com.univesp.PCPView.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -12,6 +13,11 @@ public class RestExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     private ResponseEntity<String> usuarioExistenteHandler(UserAlreadyExistsException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(NonExistentUserException.class)
+    private ResponseEntity<String> usuarioNaoExistenteHandler(NonExistentUserException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(NonExistentProductException.class)
@@ -31,6 +37,11 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(NonExistentSubOrderException.class)
     private ResponseEntity<String> subOrdemNaoExistenteHandler(NonExistentSubOrderException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(NonExistentOrderException.class)
+    private ResponseEntity<String> ordemNaoExistenteHandler(NonExistentOrderException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
@@ -54,6 +65,11 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
+    @ExceptionHandler(OrderAlreadyStartedException.class)
+    private ResponseEntity<String> ordemJaIniciadaHandler(OrderAlreadyStartedException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
     @ExceptionHandler(UnauthorizedExecutionAccessException.class)
     private ResponseEntity<String> acessoNaoAutorizadoHandler(UnauthorizedExecutionAccessException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
@@ -62,6 +78,11 @@ public class RestExceptionHandler {
     @ExceptionHandler(DatabaseException.class)
     private ResponseEntity<String> erroDeBancoDeDadosHandler(DatabaseException exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    private ResponseEntity<String> acessoNegadoHandler(AccessDeniedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado: Você não tem privilégios de Administrador para realizar esta ação.");
     }
 
     @ExceptionHandler(Exception.class)

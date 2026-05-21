@@ -20,7 +20,7 @@ public class MachineModel implements Serializable {
 
     public MachineModel(String id, String nome) {
         this.id = id;
-        this.nome = nome;
+        this.nome = nome.toUpperCase();
         this.operacional = true;
     }
 

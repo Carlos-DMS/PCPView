@@ -29,12 +29,15 @@ public class OrderModel implements Serializable {
     @JoinColumn(name = "product_id")
     private ProductModel produto;
 
+    private Integer prioridade;
+
     public OrderModel(String numeroOrdem, Integer quantidadeTotal) {
         this.numeroOrdem = numeroOrdem;
         this.quantidadeTotal = quantidadeTotal;
         this.quantidadeProduzida = 0;
         this.dataCriacao = LocalDateTime.now();
         this.status = StatusProducaoEnum.AGUARDANDO;
+        this.prioridade = 5;
     }
 
     public OrderModel() {
@@ -93,9 +96,15 @@ public class OrderModel implements Serializable {
         return produto;
     }
 
-
     public void setProduto(ProductModel produto) {
         this.produto = produto;
     }
 
+    public Integer getPrioridade() {
+        return prioridade;
+    }
+
+    public void setPrioridade(Integer prioridade) {
+        this.prioridade = prioridade;
+    }
 }

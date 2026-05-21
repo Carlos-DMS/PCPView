@@ -2,7 +2,6 @@ package com.univesp.PCPView.models.enums;
 
 public enum RoleEnum {
     USER("User"),
-    SELLER("Seller"),
     ADMIN("Administrator");
 
     private String role;

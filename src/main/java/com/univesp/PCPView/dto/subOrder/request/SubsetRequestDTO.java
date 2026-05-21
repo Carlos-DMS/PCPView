@@ -1,4 +1,4 @@
-package com.univesp.PCPView.dto.subOrder;
+package com.univesp.PCPView.dto.subOrder.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

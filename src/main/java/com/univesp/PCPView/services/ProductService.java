@@ -1,13 +1,12 @@
 package com.univesp.PCPView.services;
 
 import com.univesp.PCPView.dto.product.request.ProductRequestDTO;
-import com.univesp.PCPView.dto.product.request.UpdateProductNameDTO;
 import com.univesp.PCPView.dto.product.response.ProductResponseDTO;
 import com.univesp.PCPView.exceptions.NonExistentProductException;
 import com.univesp.PCPView.models.ProductModel;
 import com.univesp.PCPView.repository.ProductRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,6 +28,7 @@ public class ProductService {
         return converterProdutoParaResponseDTO(produto);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponseDTO buscarProdutoPorID (String id) {
         ProductModel produto = productRepository.findById(id).orElseThrow(NonExistentProductException::new);
 
@@ -40,10 +40,10 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponseDTO atualizarNomeProduto (String id, UpdateProductNameDTO body) {
+    public ProductResponseDTO atualizarNomeProduto (String id, String nome) {
         ProductModel produto = productRepository.findById(id).orElseThrow(NonExistentProductException::new);
 
-        produto.setNome(body.nome());
+        produto.setNome(nome);
 
         productRepository.save(produto);
 

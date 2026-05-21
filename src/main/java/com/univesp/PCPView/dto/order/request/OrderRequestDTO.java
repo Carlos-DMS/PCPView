@@ -1,6 +1,7 @@
-package com.univesp.PCPView.dto.order;
+package com.univesp.PCPView.dto.order.request;
 
-import com.univesp.PCPView.dto.subOrder.SubsetRequestDTO;
+import com.univesp.PCPView.dto.subOrder.request.SubsetRequestDTO;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,6 +12,7 @@ public record OrderRequestDTO(@NotNull
                               String numeroOrdem,
 
                               @NotNull
+                              @Min(value = 0, message = "A quantidade não pode ser negativa.")
                               Integer quantidadeTotal,
 
                               List<SubsetRequestDTO> subconjuntos) {
