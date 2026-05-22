@@ -38,6 +38,10 @@ public class ExecutionService {
 
         MachineModel maquina = machineRepository.findById(body.idMaquina()).orElseThrow(NonExistentMachineException::new);
 
+        if (!Boolean.TRUE.equals(maquina.getOperacional()) || executionRepository.existsByMaquinaAndStatusIn(maquina, statusExecucaoAberta())) {
+            throw new DatabaseException();
+        }
+
         SubOrderModel subOrdem = subOrderRepository.findById(body.idEtapaSubOrdem()).orElseThrow(NonExistentSubOrderException::new);
 
         OrderModel ordemPrincipal = orderRepository.findById(subOrdem.getOrdemPrincipal().getNumeroOrdem()).orElseThrow(DatabaseException::new);
@@ -50,21 +54,15 @@ public class ExecutionService {
 
         if (subOrdem.getStatus().equals(StatusProducaoEnum.AGUARDANDO)) {
             subOrdem.setStatus(StatusProducaoEnum.EM_PROCESSAMENTO);
+            ordemPrincipal.setStatus(StatusProducaoEnum.EM_PROCESSAMENTO);
 
+            orderRepository.save(ordemPrincipal);
             subOrderRepository.save(subOrdem);
         }
 
-        ExecutionModel execucao = executionRepository.save(new ExecutionModel(operador, maquina, subOrdem));
+        ExecutionModel execucao = executionRepository.save(new ExecutionModel(operador, maquina, subOrdem, body.setupPrimeiraPeca()));
 
-        return new ExecutionResponseDTO(
-                execucao.getId(),
-                maquina.getNome(),
-                subOrdem.getId(),
-                operador.getUsername(),
-                execucao.getStatus(),
-                execucao.getDataInicio(),
-                execucao.getDataFim()
-        );
+        return converterExecucaoParaResponseDTO(execucao);
     }
 
     @Transactional
@@ -87,6 +85,7 @@ public class ExecutionService {
             throw new ExecutionNotRunningException();
         }
 
+        execucao.finalizarSetup();
         execucao.setQuantidadeFeitaNestaSessao(body.quantidadeProduzida());
         execucao.inserirDataFim();
         execucao.setStatus(ExecutionStatus.FINALIZADA);
@@ -109,19 +108,47 @@ public class ExecutionService {
                 orderRepository.save(ordemPrincipal);
             }
         }
+        else {
+            subOrdem.setStatus(StatusProducaoEnum.AGUARDANDO);
+            ordemPrincipal.setStatus(StatusProducaoEnum.AGUARDANDO);
+            orderRepository.save(ordemPrincipal);
+        }
 
         subOrderRepository.save(subOrdem);
         executionRepository.save(execucao);
 
-        return new ExecutionResponseDTO(
-                execucao.getId(),
-                maquina.getNome(),
-                subOrdem.getId(),
-                usuarioLogado.getUsername(),
-                execucao.getStatus(),
-                execucao.getDataInicio(),
-                execucao.getDataFim()
-        );
+        return converterExecucaoParaResponseDTO(execucao);
+    }
+
+    private List<ExecutionStatus> statusExecucaoAberta() {
+        return List.of(ExecutionStatus.RODANDO, ExecutionStatus.PAUSADA_POR_QUEBRA);
+    }
+
+    @Transactional
+    public ExecutionResponseDTO pausarExecucao(java.util.UUID idExecucao) {
+        ExecutionModel execucao = buscarExecucaoAutorizada(idExecucao);
+        execucao.pausar();
+        executionRepository.save(execucao);
+
+        return converterExecucaoParaResponseDTO(execucao);
+    }
+
+    @Transactional
+    public ExecutionResponseDTO retomarExecucao(java.util.UUID idExecucao) {
+        ExecutionModel execucao = buscarExecucaoAutorizada(idExecucao);
+        execucao.retomar();
+        executionRepository.save(execucao);
+
+        return converterExecucaoParaResponseDTO(execucao);
+    }
+
+    @Transactional
+    public ExecutionResponseDTO finalizarSetup(java.util.UUID idExecucao) {
+        ExecutionModel execucao = buscarExecucaoAutorizada(idExecucao);
+        execucao.finalizarSetup();
+        executionRepository.save(execucao);
+
+        return converterExecucaoParaResponseDTO(execucao);
     }
 
     @Transactional(readOnly = true)
@@ -129,15 +156,37 @@ public class ExecutionService {
         List<ExecutionModel> execucoes = executionRepository.findAllComDetalhes();
 
         return execucoes.stream()
-                .map(execucao -> new ExecutionResponseDTO(
-                        execucao.getId(),
-                        execucao.getMaquina().getNome(),
-                        execucao.getSubOrdem().getId(),
-                        execucao.getOperador().getUsername(),
-                        execucao.getStatus(),
-                        execucao.getDataInicio(),
-                        execucao.getDataFim()
-                )).toList();
+                .map(this::converterExecucaoParaResponseDTO).toList();
+    }
+
+    private ExecutionModel buscarExecucaoAutorizada(java.util.UUID idExecucao) {
+        UserModel usuarioLogado = authenticationService.extractUser();
+
+        ExecutionModel execucao = executionRepository.findById(idExecucao).orElseThrow(NonExistentExecutionException::new);
+
+        if (!execucao.getOperador().getId().equals(usuarioLogado.getId()) && !usuarioLogado.getRole().equals(RoleEnum.ADMIN)) {
+            throw new UnauthorizedExecutionAccessException();
+        }
+
+        return execucao;
+    }
+
+    private ExecutionResponseDTO converterExecucaoParaResponseDTO(ExecutionModel execucao) {
+        return new ExecutionResponseDTO(
+                execucao.getId(),
+                execucao.getMaquina().getNome(),
+                execucao.getSubOrdem().getId(),
+                execucao.getOperador().getUsername(),
+                execucao.getStatus(),
+                execucao.getDataInicio(),
+                execucao.getDataFim(),
+                execucao.getTempoProdutivoSegundos(),
+                execucao.getTempoSetupSegundos(),
+                execucao.getTempoRestanteLoteSegundos(),
+                execucao.getTempoMedioPorPecaSegundos(),
+                execucao.getTempoMedioRestanteSegundos(),
+                execucao.getSetupPrimeiraPeca()
+        );
     }
 
     private boolean operacaoValidaParaExecucao(OrderModel ordemPrincipal, SubOrderModel subOrdem) {

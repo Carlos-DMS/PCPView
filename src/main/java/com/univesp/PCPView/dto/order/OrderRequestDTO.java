@@ -13,5 +13,9 @@ public record OrderRequestDTO(@NotNull
                               @NotNull
                               Integer quantidadeTotal,
 
+                              String produtoNome,
+
+                              String maquinaIdealId,
+
                               List<SubsetRequestDTO> subconjuntos) {
 }

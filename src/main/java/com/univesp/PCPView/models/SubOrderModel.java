@@ -27,6 +27,12 @@ public class SubOrderModel implements Serializable {
     @Enumerated(EnumType.STRING)
     private StatusProducaoEnum status;
 
+    @ManyToOne
+    @JoinColumn(name = "machine_ideal_id")
+    private MachineModel maquinaIdeal;
+
+    private Integer posicaoFila;
+
     private LocalDateTime inicioDoProcesso;
 
     public SubOrderModel(String id, OrderModel ordemPrincipal, Integer quantidadeTotal) {
@@ -83,6 +89,22 @@ public class SubOrderModel implements Serializable {
 
     public LocalDateTime getInicioDoProcesso() {
         return inicioDoProcesso;
+    }
+
+    public MachineModel getMaquinaIdeal() {
+        return maquinaIdeal;
+    }
+
+    public void setMaquinaIdeal(MachineModel maquinaIdeal) {
+        this.maquinaIdeal = maquinaIdeal;
+    }
+
+    public Integer getPosicaoFila() {
+        return posicaoFila;
+    }
+
+    public void setPosicaoFila(Integer posicaoFila) {
+        this.posicaoFila = posicaoFila;
     }
 
     public void iniciarProcesso(LocalDateTime inicioDoProcesso) {

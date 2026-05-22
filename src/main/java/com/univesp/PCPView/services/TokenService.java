@@ -24,6 +24,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("PCPViewer")
                     .withSubject(user.getUsername())
+                    .withClaim("role", user.getRole().name())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
 

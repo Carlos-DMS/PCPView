@@ -9,5 +9,7 @@ public record ExecutionStartRequestDTO(@NotNull
 
                                        @NotNull
                                        @NotBlank
-                                       String idEtapaSubOrdem) {
+                                       String idEtapaSubOrdem,
+
+                                       Boolean setupPrimeiraPeca) {
 }

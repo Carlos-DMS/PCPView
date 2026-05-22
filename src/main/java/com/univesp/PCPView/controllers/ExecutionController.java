@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/execucoes")
@@ -31,6 +32,21 @@ public class ExecutionController {
     @PutMapping("/finalizar")
     public ResponseEntity<ExecutionResponseDTO> finalizar(@RequestBody ExecutionFinishRequestDTO body) {
         return ResponseEntity.status(HttpStatus.OK).body(executionService.finalizarExecucao(body));
+    }
+
+    @PatchMapping("/{idExecucao}/pausar")
+    public ResponseEntity<ExecutionResponseDTO> pausar(@PathVariable UUID idExecucao) {
+        return ResponseEntity.status(HttpStatus.OK).body(executionService.pausarExecucao(idExecucao));
+    }
+
+    @PatchMapping("/{idExecucao}/retomar")
+    public ResponseEntity<ExecutionResponseDTO> retomar(@PathVariable UUID idExecucao) {
+        return ResponseEntity.status(HttpStatus.OK).body(executionService.retomarExecucao(idExecucao));
+    }
+
+    @PatchMapping("/{idExecucao}/finalizar-setup")
+    public ResponseEntity<ExecutionResponseDTO> finalizarSetup(@PathVariable UUID idExecucao) {
+        return ResponseEntity.status(HttpStatus.OK).body(executionService.finalizarSetup(idExecucao));
     }
 
     @GetMapping

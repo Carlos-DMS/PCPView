@@ -11,5 +11,11 @@ public record ExecutionResponseDTO(UUID id,
                                    String operadorNome,
                                    ExecutionStatus status,
                                    LocalDateTime dataInicio,
-                                   LocalDateTime dataFim) {
+                                   LocalDateTime dataFim,
+                                   Long tempoProdutivoSegundos,
+                                   Long tempoSetupSegundos,
+                                   Long tempoRestanteLoteSegundos,
+                                   Long tempoMedioPorPecaSegundos,
+                                   Long tempoMedioRestanteSegundos,
+                                   Boolean setupPrimeiraPeca) {
 }
