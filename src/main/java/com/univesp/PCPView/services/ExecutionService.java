@@ -125,8 +125,9 @@ public class ExecutionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExecutionResponseDTO> listarTodas() {
-        List<ExecutionModel> execucoes = executionRepository.findAllComDetalhes();
+    public List<ExecutionResponseDTO> listarTodas(String maquinaId, ExecutionStatus status, String ordemId) {
+
+        List<ExecutionModel> execucoes = executionRepository.findComFiltros(maquinaId, status, ordemId);
 
         return execucoes.stream()
                 .map(execucao -> new ExecutionResponseDTO(
@@ -140,7 +141,25 @@ public class ExecutionService {
                 )).toList();
     }
 
-    private boolean operacaoValidaParaExecucao(OrderModel ordemPrincipal, SubOrderModel subOrdem) {
+    @Transactional
+    public void cancelarExecucao(UUID idExecucao) {
+        ExecutionModel execucao = executionRepository.findById(idExecucao)
+                .orElseThrow(NonExistentExecutionException::new);
+
+        if (!execucao.getStatus().equals(ExecutionStatus.RODANDO)) {
+            throw new ExecutionAlreadyFinishedException();
+        }
+
+        UserModel usuarioLogado = authenticationService.extractUser();
+
+        if (!usuarioLogado.getRole().equals(RoleEnum.ADMIN) && !execucao.getOperador().equals(usuarioLogado)) {
+            throw new UnauthorizedExecutionAccessException();
+        }
+
+        executionRepository.delete(execucao);
+    }
+
+    private void operacaoValidaParaExecucao(OrderModel ordemPrincipal, SubOrderModel subOrdem) {
         if (ordemPrincipal.getStatus().equals(StatusProducaoEnum.CANCELADO) || ordemPrincipal.getStatus().equals(StatusProducaoEnum.FINALIZADO)) {
             List<SubOrderModel> subOrdensDaOrdemPrincipal = subOrderRepository.findAllByOrdemPrincipal(ordemPrincipal);
 
@@ -153,7 +172,5 @@ public class ExecutionService {
         else if (subOrdem.getStatus().equals(StatusProducaoEnum.CANCELADO) || subOrdem.getStatus().equals(StatusProducaoEnum.FINALIZADO)) {
             throw new ClosedSubOrderException();
         }
-
-        return true;
     }
 }

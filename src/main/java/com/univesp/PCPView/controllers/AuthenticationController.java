@@ -4,14 +4,17 @@ import com.univesp.PCPView.dto.authentication.request.LoginRequestDTO;
 import com.univesp.PCPView.dto.authentication.response.LoginResponseDTO;
 import com.univesp.PCPView.dto.authentication.request.RegisterRequestDTO;
 import com.univesp.PCPView.dto.authentication.response.UserResponseDTO;
+import com.univesp.PCPView.infra.security.WebSecurityConfig;
 import com.univesp.PCPView.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +22,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
+@SecurityRequirement(name = WebSecurityConfig.SECURITY)
+@Validated
 @Tag(name = "Authentication Controller", description = "Autenticação do usuário.")
 public class AuthenticationController {
 
@@ -61,5 +66,16 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
     public ResponseEntity<UserResponseDTO> promoverParaAdmin(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(authenticationService.promoverParaAdmin(id));
+    }
+
+    @PatchMapping("/{id}/desativar")
+    @Operation(summary = "Desativa o acesso de um usuário ao sistema (APENAS ADMINISTRADORES)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @ApiResponse(responseCode = "204", description = "Usuário desativado com sucesso!")
+    @ApiResponse(responseCode = "403", description = "Acesso negado. Apenas administradores podem desativar usuários.")
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
+    public ResponseEntity<Void> desativarUsuario(@PathVariable UUID id) {
+        authenticationService.desativarUsuario(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

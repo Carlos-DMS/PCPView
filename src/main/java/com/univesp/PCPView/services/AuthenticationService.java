@@ -74,6 +74,19 @@ public class AuthenticationService {
         return new UserResponseDTO(user.getId(), user.getUsername(), user.getRole());
     }
 
+    @Transactional
+    public void desativarUsuario(UUID id) {
+        UserModel user = userRepository.findById(id)
+                .orElseThrow(NonExistentUserException::new);
+
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Este usuário já está desativado.");
+        }
+
+        user.setAtivo(false);
+        userRepository.save(user);
+    }
+
     public UserModel extractUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (UserModel) authentication.getPrincipal();

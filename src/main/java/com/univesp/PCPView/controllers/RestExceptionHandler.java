@@ -70,6 +70,11 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
+    @ExceptionHandler(ExecutionAlreadyFinishedException.class)
+    private ResponseEntity<String> executionAlreadyFinishedHandler(ExecutionAlreadyFinishedException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
     @ExceptionHandler(UnauthorizedExecutionAccessException.class)
     private ResponseEntity<String> acessoNaoAutorizadoHandler(UnauthorizedExecutionAccessException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());

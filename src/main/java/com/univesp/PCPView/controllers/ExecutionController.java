@@ -3,6 +3,7 @@ package com.univesp.PCPView.controllers;
 import com.univesp.PCPView.dto.execution.request.ExecutionStartRequestDTO;
 import com.univesp.PCPView.dto.execution.response.ExecutionResponseDTO;
 import com.univesp.PCPView.infra.security.WebSecurityConfig;
+import com.univesp.PCPView.models.enums.ExecutionStatus;
 import com.univesp.PCPView.services.ExecutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,9 +58,24 @@ public class ExecutionController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista todas as execuções (Histórico de Produção)")
+    @Operation(summary = "Lista as execuções, permitindo filtrar por status, máquina e/ou ordem principal")
     @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso!")
-    public ResponseEntity<List<ExecutionResponseDTO>> listarTodas() {
-        return ResponseEntity.status(HttpStatus.OK).body(executionService.listarTodas());
+    public ResponseEntity<List<ExecutionResponseDTO>> listarTodas(
+            @RequestParam(required = false) ExecutionStatus status,
+            @RequestParam(required = false) String maquinaId,
+            @RequestParam(required = false) String ordemId)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(executionService.listarTodas(maquinaId, status, ordemId));
+    }
+
+    @DeleteMapping("/{idExecucao}")
+    @Operation(summary = "Cancela e exclui uma execução iniciada por engano (Apenas se estiver RODANDO) / (APENAS OPERADOR RESPONSÁVEL/ADMINISTRADORES)")
+    @ApiResponse(responseCode = "204", description = "Execução cancelada e excluída com sucesso!")
+    @ApiResponse(responseCode = "400", description = "A execução já foi finalizada e não pode ser apagada.")
+    @ApiResponse(responseCode = "403", description = "Apenas o operador que iniciou a execução ou um administrador podem cancelá-la.")
+    @ApiResponse(responseCode = "404", description = "Execução não encontrada.")
+    public ResponseEntity<Void> cancelarExecucao(@PathVariable UUID idExecucao) {
+        executionService.cancelarExecucao(idExecucao);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

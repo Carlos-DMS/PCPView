@@ -35,6 +35,9 @@ public class UserModel implements UserDetails, Serializable {
     @Column(nullable = false)
     private RoleEnum role;
 
+    @Column(nullable = false)
+    private boolean ativo = true;
+
     public UserModel(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
@@ -52,6 +55,10 @@ public class UserModel implements UserDetails, Serializable {
 
     public UUID getId() {
         return id;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
     }
 
     @Override
@@ -89,6 +96,6 @@ public class UserModel implements UserDetails, Serializable {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.ativo;
     }
 }
