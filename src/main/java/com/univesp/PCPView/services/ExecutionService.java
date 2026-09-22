@@ -64,6 +64,7 @@ public class ExecutionService {
 
         return new ExecutionResponseDTO(
                 execucao.getId(),
+                maquina.getId(),
                 maquina.getNome(),
                 subOrdem.getId(),
                 operador.getUsername(),
@@ -121,6 +122,7 @@ public class ExecutionService {
 
         return new ExecutionResponseDTO(
                 execucao.getId(),
+                maquina.getId(),
                 maquina.getNome(),
                 subOrdem.getId(),
                 usuarioLogado.getUsername(),
@@ -138,6 +140,7 @@ public class ExecutionService {
         return execucoes.stream()
                 .map(execucao -> new ExecutionResponseDTO(
                         execucao.getId(),
+                        execucao.getMaquina().getId(),
                         execucao.getMaquina().getNome(),
                         execucao.getSubOrdem().getId(),
                         execucao.getOperador().getUsername(),

@@ -79,6 +79,10 @@ public class UserModel implements UserDetails, Serializable {
         return role;
     }
 
+    public boolean getAtivo() {
+        return ativo;
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

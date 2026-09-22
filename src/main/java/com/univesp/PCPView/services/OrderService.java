@@ -144,11 +144,13 @@ public class OrderService {
                 ordem.getQuantidadeTotal(),
                 ordem.getQuantidadeProduzida(),
                 ordem.getPrioridade(),
+                ordem.getStatus(),
                 ordem.getDataCriacao(),
                 subOrdens.stream().map( s -> new SubOrderResponseDTO(
                         s.getId(),
                         s.getQuantidadeTotal(),
-                        s.getQuantidadeProduzida())).toList()
+                        s.getQuantidadeProduzida(),
+                        s.getStatus())).toList()
         );
     }
 

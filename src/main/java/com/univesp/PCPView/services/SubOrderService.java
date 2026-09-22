@@ -36,7 +36,8 @@ public class SubOrderService {
                 .map(s -> new SubOrderResponseDTO(
                         s.getId(),
                         s.getQuantidadeTotal(),
-                        s.getQuantidadeProduzida()
+                        s.getQuantidadeProduzida(),
+                        s.getStatus()
                 )).toList();
     }
 
@@ -77,7 +78,8 @@ public class SubOrderService {
         return new SubOrderResponseDTO(
                 novaSubOrdem.getId(),
                 novaSubOrdem.getQuantidadeTotal(),
-                novaSubOrdem.getQuantidadeProduzida()
+                novaSubOrdem.getQuantidadeProduzida(),
+                novaSubOrdem.getStatus()
         );
     }
 
@@ -111,7 +113,8 @@ public class SubOrderService {
         return new SubOrderResponseDTO(
                 subOrdem.getId(),
                 subOrdem.getQuantidadeTotal(),
-                subOrdem.getQuantidadeProduzida()
+                subOrdem.getQuantidadeProduzida(),
+                subOrdem.getStatus()
         );
     }
 }

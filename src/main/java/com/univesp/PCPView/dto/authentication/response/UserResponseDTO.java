@@ -6,6 +6,8 @@ import java.util.UUID;
 
 public record UserResponseDTO(UUID id,
                               String login,
-                              RoleEnum role) {
+                              RoleEnum role,
+                              Boolean ativo) {
+
 }
 

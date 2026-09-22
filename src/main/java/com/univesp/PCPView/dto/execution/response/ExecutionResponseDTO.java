@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record ExecutionResponseDTO(UUID id,
+                                   String maquinaId,
                                    String maquinaNome,
                                    String subOrdemId,
                                    String operadorNome,

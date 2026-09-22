@@ -66,7 +66,7 @@ public class AuthenticationService {
 
     public List<UserResponseDTO> listarUsuarios() {
         return userRepository.findAll().stream()
-                .map(u -> new UserResponseDTO(u.getId(), u.getUsername(), u.getRole()))
+                .map(u -> new UserResponseDTO(u.getId(), u.getUsername(), u.getRole(), u.getAtivo()))
                 .toList();
     }
 
@@ -79,7 +79,7 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
-        return new UserResponseDTO(user.getId(), user.getUsername(), user.getRole());
+        return new UserResponseDTO(user.getId(), user.getUsername(), user.getRole(), user.getAtivo());
     }
 
     @Transactional
