@@ -3,10 +3,12 @@ package com.univesp.PCPView.controllers;
 import com.univesp.PCPView.dto.order.request.OrderRequestDTO;
 import com.univesp.PCPView.dto.order.response.OrderResponseDTO;
 import com.univesp.PCPView.dto.order.response.SimpleOrderResponseDTO;
+import com.univesp.PCPView.infra.security.WebSecurityConfig;
 import com.univesp.PCPView.models.enums.StatusProducaoEnum;
 import com.univesp.PCPView.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/ordens")
 @Validated
+@SecurityRequirement(name = WebSecurityConfig.SECURITY)
 @Tag(name = "Order Controller", description = "Operações relacionadas às Ordens de Produção")
 public class OrderController {
 
