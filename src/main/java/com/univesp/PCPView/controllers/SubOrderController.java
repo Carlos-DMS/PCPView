@@ -1,10 +1,12 @@
 package com.univesp.PCPView.controllers;
 
 import com.univesp.PCPView.dto.subOrder.response.SubOrderResponseDTO;
+import com.univesp.PCPView.infra.security.WebSecurityConfig;
 import com.univesp.PCPView.models.enums.StatusProducaoEnum;
 import com.univesp.PCPView.services.SubOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,6 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/sub-ordens")
 @Validated
+@SecurityRequirement(name = WebSecurityConfig.SECURITY)
 @Tag(name = "Sub-Order Controller", description = "Operações relacionadas às Sub-Ordens (Etapas de Produção)")
 public class SubOrderController {
 
