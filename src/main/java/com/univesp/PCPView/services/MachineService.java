@@ -3,7 +3,10 @@ package com.univesp.PCPView.services;
 import com.univesp.PCPView.dto.machine.request.MachineRequestDTO;
 import com.univesp.PCPView.dto.machine.response.MachineResponseDTO;
 import com.univesp.PCPView.exceptions.NonExistentMachineException;
+import com.univesp.PCPView.models.ExecutionModel;
 import com.univesp.PCPView.models.MachineModel;
+import com.univesp.PCPView.models.enums.ExecutionStatus;
+import com.univesp.PCPView.repository.ExecutionRepository;
 import com.univesp.PCPView.repository.MachineRepository;
 
 import org.springframework.stereotype.Service;
@@ -15,9 +18,11 @@ import java.util.List;
 public class MachineService {
 
     private final MachineRepository machineRepository;
+    private final ExecutionRepository executionRepository;
 
-    public MachineService(MachineRepository machineRepository) {
+    public MachineService(MachineRepository machineRepository, ExecutionRepository executionRepository) {
         this.machineRepository = machineRepository;
+        this.executionRepository = executionRepository;
     }
 
     @Transactional
@@ -52,6 +57,19 @@ public class MachineService {
         maquina.alternarStatusOperacional();
 
         machineRepository.save(maquina);
+
+        List<ExecutionModel> execucoesDaMaquinaNaoFinalizadas = executionRepository.findByMaquinaIdAndStatusNot(maquina.getId(), ExecutionStatus.FINALIZADA);
+
+        if (!execucoesDaMaquinaNaoFinalizadas.isEmpty()) {
+            if (maquina.getOperacional() == false) {
+                execucoesDaMaquinaNaoFinalizadas.forEach(e -> e.setStatus(ExecutionStatus.PAUSADA_POR_QUEBRA));
+            }
+            else {
+                execucoesDaMaquinaNaoFinalizadas.forEach(e -> e.setStatus(ExecutionStatus.RODANDO));
+            }
+
+            executionRepository.saveAll(execucoesDaMaquinaNaoFinalizadas);
+        }
 
         return converterMaquinaParaResponseDTO(maquina);
     }

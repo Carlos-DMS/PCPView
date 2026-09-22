@@ -54,6 +54,12 @@ public class ExecutionService {
             subOrderRepository.save(subOrdem);
         }
 
+        if (ordemPrincipal.getStatus().equals(StatusProducaoEnum.AGUARDANDO)) {
+            ordemPrincipal.setStatus(StatusProducaoEnum.EM_PROCESSAMENTO);
+
+            orderRepository.save(ordemPrincipal);
+        }
+
         ExecutionModel execucao = executionRepository.save(new ExecutionModel(operador, maquina, subOrdem));
 
         return new ExecutionResponseDTO(

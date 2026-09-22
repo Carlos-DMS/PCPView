@@ -22,4 +22,6 @@ public interface ExecutionRepository extends JpaRepository<ExecutionModel, UUID>
             @Param("maquinaId") String maquinaId,
             @Param("status") ExecutionStatus status,
             @Param("ordemId") String ordemId);
+
+    List<ExecutionModel> findByMaquinaIdAndStatusNot(String maquinaId, ExecutionStatus executionStatus);
 }
