@@ -45,6 +45,7 @@ public class AuthenticationController {
     @PostMapping("/login")
     @Operation(summary = "Conecta usuário já cadastrado")
     @ApiResponse(responseCode = "202", description = "Usuário conectado com sucesso!")
+    @ApiResponse(responseCode = "401", description = "E-mail ou senha inválidos.")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO body){
         return ResponseEntity.status(HttpStatus.ACCEPTED).body((authenticationService.login(body)));
     }

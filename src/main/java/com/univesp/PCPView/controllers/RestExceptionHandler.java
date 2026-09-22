@@ -20,6 +20,11 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    private ResponseEntity<String> credenciaisInvalidasHandler (InvalidCredentialsException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+    }
+
     @ExceptionHandler(NonExistentProductException.class)
     private ResponseEntity<String> produtoNaoExistenteHandler(NonExistentProductException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());

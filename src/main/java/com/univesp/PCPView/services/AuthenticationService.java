@@ -4,6 +4,7 @@ import com.univesp.PCPView.dto.authentication.request.LoginRequestDTO;
 import com.univesp.PCPView.dto.authentication.response.LoginResponseDTO;
 import com.univesp.PCPView.dto.authentication.request.RegisterRequestDTO;
 import com.univesp.PCPView.dto.authentication.response.UserResponseDTO;
+import com.univesp.PCPView.exceptions.InvalidCredentialsException;
 import com.univesp.PCPView.exceptions.NonExistentUserException;
 import com.univesp.PCPView.exceptions.UserAlreadyExistsException;
 import com.univesp.PCPView.models.UserModel;
@@ -36,8 +37,15 @@ public class AuthenticationService {
     }
 
     public LoginResponseDTO login(LoginRequestDTO body) {
-        UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(body.email(), body.password());
-        Authentication auth = this.authenticationManager.authenticate(usernamePassword);
+        Authentication auth;
+
+        try {
+            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(body.email(), body.password());
+            auth = this.authenticationManager.authenticate(usernamePassword);
+        }
+        catch (Exception e) {
+            throw new InvalidCredentialsException();
+        }
 
         return new LoginResponseDTO(tokenService.generateToken((UserModel) auth.getPrincipal()));
     }
