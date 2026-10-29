@@ -54,7 +54,8 @@ public class SubOrderService {
 
     @Transactional
     public SubOrderResponseDTO criarNovaEtapa(String numeroOrdem, String letra) {
-        OrderModel ordem = orderRepository.findById(numeroOrdem).orElseThrow(NonExistentOrderException::new);
+        OrderModel ordem = orderRepository.findById(numeroOrdem)
+                .orElseThrow(NonExistentOrderException::new);
 
         List<SubOrderModel> subOrdensExistentes = subOrderRepository.findAllByOrdemPrincipal(ordem);
 
@@ -68,12 +69,18 @@ public class SubOrderService {
                 .orElse(0);
 
         String numeroEtapaFormatado = String.format("%02d", maxEtapa + 1);
-
         String novoCodigoDaEtapa = ordem.getNumeroOrdem() + "-" + letra.toUpperCase() + "-" + numeroEtapaFormatado;
 
         SubOrderModel novaSubOrdem = new SubOrderModel(novoCodigoDaEtapa, ordem, ordem.getQuantidadeTotal());
 
+        ordem.setQuantidadeProduzida(0);
+
+        if (ordem.getStatus().equals(StatusProducaoEnum.FINALIZADO)) {
+            ordem.setStatus(StatusProducaoEnum.EM_PROCESSAMENTO);
+        }
+
         subOrderRepository.save(novaSubOrdem);
+        orderRepository.save(ordem);
 
         return new SubOrderResponseDTO(
                 novaSubOrdem.getId(),
@@ -82,7 +89,6 @@ public class SubOrderService {
                 novaSubOrdem.getStatus()
         );
     }
-
     @Transactional
     public SubOrderResponseDTO alterarStatusSubOrdem(String idSubOrdem, StatusProducaoEnum novoStatus) {
         SubOrderModel subOrdem = subOrderRepository.findById(idSubOrdem)

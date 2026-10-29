@@ -132,7 +132,9 @@ public class SubOrderServiceTest {
 
         // Assert
         assertThat(sut).usingRecursiveComparison().isEqualTo(SubOrderConstants.SUB_ORDEM_RESPONSE_CRIADA);
+        assertThat(SubOrderConstants.ORDEM_PADRAO.getQuantidadeProduzida()).isEqualTo(0);
         verify(subOrderRepository).save(any(SubOrderModel.class));
+        verify(orderRepository).save(SubOrderConstants.ORDEM_PADRAO);
     }
 
     @Test

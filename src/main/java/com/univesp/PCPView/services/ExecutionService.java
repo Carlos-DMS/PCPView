@@ -78,7 +78,8 @@ public class ExecutionService {
     public ExecutionResponseDTO finalizarExecucao(UUID idExecucao, Integer quantidadeProduzida) {
         UserModel usuarioLogado = authenticationService.extractUser();
 
-        ExecutionModel execucao = executionRepository.findById(idExecucao).orElseThrow(NonExistentExecutionException::new);
+        ExecutionModel execucao = executionRepository.findById(idExecucao)
+                .orElseThrow(NonExistentExecutionException::new);
 
         if (!execucao.getOperador().getId().equals(usuarioLogado.getId()) && !usuarioLogado.getRole().equals(RoleEnum.ADMIN)) {
             throw new UnauthorizedExecutionAccessException();
@@ -88,12 +89,15 @@ public class ExecutionService {
             throw new ExecutionNotRunningException();
         }
 
-        SubOrderModel subOrdem = subOrderRepository.findById(execucao.getSubOrdem().getId()).orElseThrow(NonExistentSubOrderException::new);
+        SubOrderModel subOrdem = subOrderRepository.findById(execucao.getSubOrdem().getId())
+                .orElseThrow(NonExistentSubOrderException::new);
 
-        OrderModel ordemPrincipal = orderRepository.findById(subOrdem.getOrdemPrincipal().getNumeroOrdem()).orElseThrow(DatabaseException::new);
+        OrderModel ordemPrincipal = orderRepository.findById(subOrdem.getOrdemPrincipal().getNumeroOrdem())
+                .orElseThrow(DatabaseException::new);
 
-        MachineModel maquina = machineRepository.findById(execucao.getMaquina().getId()).orElseThrow(NonExistentMachineException::new);
-
+        MachineModel maquina = machineRepository.findById(execucao.getMaquina().getId())
+                .orElseThrow(NonExistentMachineException::new);
+        
         execucao.setQuantidadeFeitaNestaSessao(quantidadeProduzida);
         execucao.inserirDataFim();
         execucao.setStatus(ExecutionStatus.FINALIZADA);
@@ -104,19 +108,27 @@ public class ExecutionService {
 
         if (subOrdem.getQuantidadeRestante() <= 0) {
             subOrdem.setStatus(StatusProducaoEnum.FINALIZADO);
-
-            List<SubOrderModel> subOrdensDaOrdemPrincipal = subOrderRepository.findAllByOrdemPrincipal(ordemPrincipal);
-
-            boolean todasFinalizadas = subOrdensDaOrdemPrincipal.stream()
-                    .allMatch(s -> s.getStatus().equals(StatusProducaoEnum.FINALIZADO));
-
-            if (todasFinalizadas) {
-                ordemPrincipal.setStatus(StatusProducaoEnum.FINALIZADO);
-
-                orderRepository.save(ordemPrincipal);
-            }
         }
 
+        List<SubOrderModel> subOrdensDaOrdemPrincipal = subOrderRepository.findAllByOrdemPrincipal(ordemPrincipal);
+
+        if (quantidadeProduzida > 0 && !subOrdensDaOrdemPrincipal.isEmpty()) {
+            int quantidadeConcluidaOrdem = subOrdensDaOrdemPrincipal.stream()
+                    .mapToInt(SubOrderModel::getQuantidadeProduzida)
+                    .min()
+                    .orElse(0);
+
+            ordemPrincipal.setQuantidadeProduzida(quantidadeConcluidaOrdem);
+        }
+
+        boolean todasFinalizadas = !subOrdensDaOrdemPrincipal.isEmpty() && subOrdensDaOrdemPrincipal.stream()
+                .allMatch(s -> s.getStatus().equals(StatusProducaoEnum.FINALIZADO));
+
+        if (todasFinalizadas) {
+            ordemPrincipal.setStatus(StatusProducaoEnum.FINALIZADO);
+        }
+
+        orderRepository.save(ordemPrincipal);
         subOrderRepository.save(subOrdem);
         executionRepository.save(execucao);
 
@@ -131,7 +143,6 @@ public class ExecutionService {
                 execucao.getDataFim()
         );
     }
-
     @Transactional(readOnly = true)
     public List<ExecutionResponseDTO> listarTodas(String maquinaId, ExecutionStatus status, String ordemId) {
 

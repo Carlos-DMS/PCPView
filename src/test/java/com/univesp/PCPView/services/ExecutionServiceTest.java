@@ -211,7 +211,7 @@ public class ExecutionServiceTest {
     }
 
     @Test
-    public void finalizarExecucao_comOperadorDonoEQuantidadeValida_finalizaComSucesso() {
+    public void finalizarExecucao_comOperadorDonoEQuantidadeParcial_atualizaQuantidadesSemFinalizarOrdem() {
         // Arrange
         OrderModel ordem = new OrderModel("ORD-001", 100);
         SubOrderModel subOrdem = new SubOrderModel("ORD-001-A-01", ordem, 100);
@@ -228,6 +228,7 @@ public class ExecutionServiceTest {
         when(subOrderRepository.findById(subOrdem.getId())).thenReturn(Optional.of(subOrdem));
         when(orderRepository.findById(ordem.getNumeroOrdem())).thenReturn(Optional.of(ordem));
         when(machineRepository.findById(ExecutionConstants.MAQUINA.getId())).thenReturn(Optional.of(ExecutionConstants.MAQUINA));
+        when(subOrderRepository.findAllByOrdemPrincipal(ordem)).thenReturn(List.of(subOrdem));
 
         // Act
         ExecutionResponseDTO sut = executionService.finalizarExecucao(execucao.getId(), 50);
@@ -236,15 +237,20 @@ public class ExecutionServiceTest {
         assertThat(sut.status()).isEqualTo(ExecutionStatus.FINALIZADA);
         assertThat(execucao.getQuantidadeFeitaNestaSessao()).isEqualTo(50);
         assertThat(subOrdem.getQuantidadeProduzida()).isEqualTo(50);
+        assertThat(ordem.getQuantidadeProduzida()).isEqualTo(50);
         assertThat(execucao.getDataFim()).isNotNull();
+
+        // Garante que a ordem e a sub-ordem NÃO foram encerradas
+        assertThat(subOrdem.getStatus()).isNotEqualTo(StatusProducaoEnum.FINALIZADO);
+        assertThat(ordem.getStatus()).isNotEqualTo(StatusProducaoEnum.FINALIZADO);
 
         verify(subOrderRepository).save(subOrdem);
         verify(executionRepository).save(execucao);
-        verify(orderRepository, never()).save(any());
+        verify(orderRepository).save(ordem);
     }
 
     @Test
-    public void finalizarExecucao_quandoTodasSubOrdensFinalizadas_finalizaOrdemPrincipalTambem() {
+    public void finalizarExecucao_quandoTodasSubOrdensAtingemMeta_finalizaSubOrdemEOrdemPrincipal() {
         // Arrange
         OrderModel ordem = new OrderModel("ORD-001", 100);
         SubOrderModel subOrdem = new SubOrderModel("ORD-001-A-01", ordem, 100);
@@ -268,12 +274,16 @@ public class ExecutionServiceTest {
 
         // Assert
         assertThat(sut.status()).isEqualTo(ExecutionStatus.FINALIZADA);
+        assertThat(subOrdem.getQuantidadeProduzida()).isEqualTo(100);
+        assertThat(ordem.getQuantidadeProduzida()).isEqualTo(100);
+
+        // Garante que atingir o total vira os dois status para FINALIZADO
         assertThat(subOrdem.getStatus()).isEqualTo(StatusProducaoEnum.FINALIZADO);
         assertThat(ordem.getStatus()).isEqualTo(StatusProducaoEnum.FINALIZADO);
 
-        verify(orderRepository).save(ordem);
         verify(subOrderRepository).save(subOrdem);
         verify(executionRepository).save(execucao);
+        verify(orderRepository).save(ordem);
     }
 
     @Test
